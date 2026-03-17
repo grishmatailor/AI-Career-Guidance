@@ -1,9 +1,12 @@
 import { AppDataSource } from "../config/database";
 import { Career } from "../entities/Career";
 import { Recommendation } from "../entities/Recommendation";
+import { AIRecommendation } from "../entities/AIRecommendation";
 import { User } from "../entities/User";
 import { Answer } from "../entities/Answer";
 import { getAIRecommendations } from "../services/aiService";
+
+
 
 export const careerResolvers = {
   Query: {
@@ -13,11 +16,18 @@ export const careerResolvers = {
     getCareerById: async (_: any, { id }: any) => {
       return await AppDataSource.getRepository(Career).findOneBy({ id });
     },
-    getRecommendations: async (_: any, __: any, { user }: any) => {
+    getRecommendations: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
       return await AppDataSource.getRepository(Recommendation).find({
         where: { user: { id: user.id } },
         relations: ["career"],
+      });
+    },
+    getSavedAIRecommendations: async (_: unknown, __: unknown, { user }: { user: User }) => {
+      if (!user) throw new Error("Unauthorized");
+      return await AppDataSource.getRepository(AIRecommendation).find({
+        where: { user: { id: user.id } },
+        order: { created_at: "DESC" },
       });
     },
     getUserDashboard: async (_: any, __: any, { user }: any) => {
@@ -76,36 +86,81 @@ export const careerResolvers = {
       await AppDataSource.getRepository(Career).delete(id);
       return true;
     },
-    generateCareerRecommendation: async (_: any, __: any, { user }: any) => {
+    generateCareerRecommendation: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
-      
+
       const answerRepo = AppDataSource.getRepository(Answer);
       const userAnswers = await answerRepo.find({
         where: { user: { id: user.id } },
-        relations: ["question"]
+        relations: ["question"],
       });
 
-      if (userAnswers.length === 0) throw new Error("Please complete the assessment first");
+      if (userAnswers.length === 0)
+        throw new Error("Please complete the assessment first");
 
       const profile = {
-        interests: userAnswers.filter(a => a.question.category === "interests").map(a => a.answer),
-        skills: userAnswers.filter(a => a.question.category === "skills").map(a => a.answer),
-        education: userAnswers.find(a => a.question.category === "education")?.answer || "Student"
+        interests: userAnswers
+          .filter((a) => a.question.category === "interests")
+          .map((a) => a.answer),
+        skills: userAnswers
+          .filter((a) => a.question.category === "skills")
+          .map((a) => a.answer),
+        education:
+          userAnswers.find((a) => a.question.category === "education")?.answer ||
+          "Student",
       };
 
-      const aiResponse = await getAIRecommendations(profile);
-
-      // Optionally save these to DB if they match existing careers
-      // For now, just return AI response
-      return aiResponse;
+      // Only generate AI response – do NOT auto-save; user saves individually
+      return await getAIRecommendations(profile);
     },
-    saveCareer: async (_: any, { careerId }: any, { user }: any) => {
+    saveAIRecommendation: async (
+      _: unknown,
+      args: {
+        title: string;
+        explanation: string;
+        requiredSkills: string[];
+        salaryRange: string;
+        roadmap: string[];
+      },
+      { user }: { user: User }
+    ) => {
+      if (!user) throw new Error("Unauthorized");
+
+      const aiRecRepo = AppDataSource.getRepository(AIRecommendation);
+
+      // Avoid duplicate saves for the same title
+      const existing = await aiRecRepo.findOne({
+        where: { user: { id: user.id }, title: args.title },
+      });
+      if (existing) throw new Error("Already saved");
+
+      const rec = aiRecRepo.create({
+        user: { id: user.id } as User,
+        title: args.title,
+        explanation: args.explanation,
+        requiredSkills: args.requiredSkills,
+        salaryRange: args.salaryRange,
+        roadmap: args.roadmap,
+      });
+      return await aiRecRepo.save(rec);
+    },
+    deleteSavedAIRecommendation: async (
+      _: unknown,
+      { id }: { id: string },
+      { user }: { user: User }
+    ) => {
+      if (!user) throw new Error("Unauthorized");
+      const aiRecRepo = AppDataSource.getRepository(AIRecommendation);
+      await aiRecRepo.delete({ id, user: { id: user.id } });
+      return true;
+    },
+    saveCareer: async (_: unknown, { careerId }: { careerId: string }, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
       const recommendationRepo = AppDataSource.getRepository(Recommendation);
       const recommendation = recommendationRepo.create({
         user: { id: user.id } as User,
         career: { id: careerId } as Career,
-        score: 100 // Manual save score
+        score: 100,
       });
       return await recommendationRepo.save(recommendation);
     }

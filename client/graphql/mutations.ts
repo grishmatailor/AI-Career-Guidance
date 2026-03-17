@@ -46,6 +46,34 @@ export const GENERATE_RECOMMENDATION = gql`
   }
 `;
 
+export const SAVE_AI_RECOMMENDATION = gql`
+  mutation SaveAIRecommendation(
+    $title: String!
+    $explanation: String!
+    $requiredSkills: [String!]!
+    $salaryRange: String!
+    $roadmap: [String!]!
+  ) {
+    saveAIRecommendation(
+      title: $title
+      explanation: $explanation
+      requiredSkills: $requiredSkills
+      salaryRange: $salaryRange
+      roadmap: $roadmap
+    ) {
+      id
+      title
+      created_at
+    }
+  }
+`;
+
+export const DELETE_SAVED_AI_RECOMMENDATION = gql`
+  mutation DeleteSavedAIRecommendation($id: ID!) {
+    deleteSavedAIRecommendation(id: $id)
+  }
+`;
+
 export const SAVE_CAREER = gql`
   mutation SaveCareer($careerId: ID!) {
     saveCareer(careerId: $careerId) {

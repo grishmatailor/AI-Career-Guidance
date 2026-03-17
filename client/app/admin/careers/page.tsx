@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableHeader,
@@ -15,8 +15,8 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_CAREERS } from "@/graphql/queries";
 import { gql } from "@apollo/client";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
+import type { Career } from "@/types";
 
 const CREATE_CAREER = gql`
   mutation CreateCareer(
@@ -63,8 +63,8 @@ export default function ManageCareers() {
       });
       toast.success("Career added!");
       refetch();
-    } catch (err) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to add career");
     }
   };
 
@@ -106,7 +106,7 @@ export default function ManageCareers() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {careers.map((career: any) => (
+            {careers.map((career: Career) => (
               <TableRow
                 key={career.id}
                 className="border-white/5 hover:bg-white/5 transition-colors"

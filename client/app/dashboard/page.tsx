@@ -18,7 +18,20 @@ import {
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { GET_USER_DASHBOARD, GET_USER_STATS, ME } from "@/graphql/queries";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+interface Recommendation {
+  id: string;
+  score: number;
+  career: {
+    id: string;
+    title: string;
+    description: string;
+    salary_range: string;
+    skills_required: string[];
+    growth_rate: string;
+  };
+}
 
 function SkeletonBox({ className }: { className?: string }) {
   return (
@@ -29,18 +42,18 @@ function SkeletonBox({ className }: { className?: string }) {
 }
 
 export default function UserDashboard() {
-  const [localUser, setLocalUser] = useState<{
-    name?: string;
-    email?: string;
-  } | null>(null);
-
-  // Read cached user from localStorage for instant display
-  useEffect(() => {
+  // Lazy initializer reads localStorage once on mount without a useEffect
+  const [localUser] = useState<{ name?: string; email?: string } | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
       const stored = localStorage.getItem("user");
-      if (stored) setLocalUser(JSON.parse(stored));
-    } catch {}
-  }, []);
+      return stored
+        ? (JSON.parse(stored) as { name?: string; email?: string })
+        : null;
+    } catch {
+      return null;
+    }
+  });
 
   const { data: meData, loading: meLoading } = useQuery(ME);
   const { data: statsData, loading: statsLoading } = useQuery(GET_USER_STATS);
@@ -49,9 +62,8 @@ export default function UserDashboard() {
 
   const user = meData?.me ?? localUser;
   const stats = statsData?.getUserStats;
-  const recommendations: any[] = dashboardData?.getUserDashboard ?? [];
-
-  const isLoading = meLoading || statsLoading || dashboardLoading;
+  const recommendations: Recommendation[] =
+    dashboardData?.getUserDashboard ?? [];
 
   // Derive a friendly first name
   const firstName = user?.name?.split(" ")[0] ?? "there";
@@ -82,7 +94,9 @@ export default function UserDashboard() {
           <div className="hidden md:flex items-center gap-2 text-sm text-slate-400 bg-slate-800/60 px-4 py-2 rounded-xl border border-white/5">
             <Calendar size={14} className="text-blue-400" />
             Member since{" "}
-            <span className="text-slate-200 font-medium">{stats.memberSince}</span>
+            <span className="text-slate-200 font-medium">
+              {stats.memberSince}
+            </span>
           </div>
         )}
       </div>
@@ -189,7 +203,7 @@ export default function UserDashboard() {
               </div>
             ) : recommendations.length > 0 ? (
               <div className="space-y-3">
-                {recommendations.slice(0, 5).map((rec: any) => (
+                {recommendations.slice(0, 5).map((rec: Recommendation) => (
                   <div
                     key={rec.id}
                     className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-colors group"
@@ -210,7 +224,12 @@ export default function UserDashboard() {
                         )}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" asChild className="shrink-0 ml-3 opacity-70 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="shrink-0 ml-3 opacity-70 group-hover:opacity-100 transition-opacity"
+                    >
                       <Link href={`/recommendations`}>
                         <ArrowRight size={16} />
                       </Link>
@@ -221,11 +240,10 @@ export default function UserDashboard() {
             ) : (
               <div className="text-center py-10 flex flex-col items-center gap-3">
                 <AlertCircle className="text-slate-600" size={40} />
-                <p className="text-slate-500">
-                  No career matches yet.
-                </p>
+                <p className="text-slate-500">No career matches yet.</p>
                 <p className="text-xs text-slate-600 mb-2">
-                  Complete the assessment to get personalized career recommendations.
+                  Complete the assessment to get personalized career
+                  recommendations.
                 </p>
                 <Button asChild className="bg-blue-600 hover:bg-blue-700">
                   <Link href="/assessment">Start Assessment</Link>
@@ -264,7 +282,12 @@ export default function UserDashboard() {
                     : "Discover your best-fit career paths"}
                 </p>
               </div>
-              <Button variant="outline" size="sm" asChild className="shrink-0 border-white/10 hover:bg-slate-800">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="shrink-0 border-white/10 hover:bg-slate-800"
+              >
                 <Link href="/assessment">
                   {stats?.hasCompletedAssessment ? "Retake" : "Start"}
                 </Link>
@@ -286,7 +309,12 @@ export default function UserDashboard() {
                     : "Get AI-powered career suggestions"}
                 </p>
               </div>
-              <Button variant="outline" size="sm" asChild className="shrink-0 border-white/10 hover:bg-slate-800">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="shrink-0 border-white/10 hover:bg-slate-800"
+              >
                 <Link href="/recommendations">View</Link>
               </Button>
             </div>
@@ -304,7 +332,12 @@ export default function UserDashboard() {
                   Ask anything about your career journey
                 </p>
               </div>
-              <Button variant="outline" size="sm" asChild className="shrink-0 border-white/10 hover:bg-slate-800">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="shrink-0 border-white/10 hover:bg-slate-800"
+              >
                 <Link href="/chatbot">Chat</Link>
               </Button>
             </div>

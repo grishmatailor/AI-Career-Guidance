@@ -75,3 +75,18 @@ export const ME = gql`
     }
   }
 `;
+
+export const GET_SAVED_AI_RECOMMENDATIONS = gql`
+  query GetSavedAIRecommendations {
+    getSavedAIRecommendations {
+      id
+      title
+      explanation
+      requiredSkills
+      salaryRange
+      roadmap
+      created_at
+    }
+  }
+`;
+

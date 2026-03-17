@@ -6,6 +6,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { useQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
 import { Users, Briefcase, HelpCircle, TrendingUp, Loader2 } from "lucide-react";
+import type { User } from "@/types";
 
 const GET_ADMIN_STATS = gql`
   query GetAdminStats {
@@ -103,7 +104,7 @@ export default function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.slice(0, 5).map((user: any) => (
+              {users.slice(0, 5).map((user: User) => (
                 <TableRow key={user.id} className="border-white/5 hover:bg-slate-800/50">
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>

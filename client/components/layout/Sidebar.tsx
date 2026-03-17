@@ -10,9 +10,9 @@ import {
   MessageSquare, 
   Settings, 
   LogOut,
-  User,
   ShieldCheck,
-  TrendingUp
+  TrendingUp,
+  BookmarkCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -20,6 +20,7 @@ const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, role: "user" },
   { name: "Assessment", href: "/assessment", icon: BookOpen, role: "user" },
   { name: "AI Recommendations", href: "/recommendations", icon: Sparkles, role: "user" },
+  { name: "Saved Recommendations", href: "/saved-recommendations", icon: BookmarkCheck, role: "user" },
   { name: "Chatbot", href: "/chatbot", icon: MessageSquare, role: "user" },
   { name: "Admin Dashboard", href: "/admin/dashboard", icon: ShieldCheck, role: "admin" },
   { name: "Manage Careers", href: "/admin/careers", icon: TrendingUp, role: "admin" },

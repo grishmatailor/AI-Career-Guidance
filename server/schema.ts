@@ -62,6 +62,16 @@ export const typeDefs = `#graphql
     careers: [AICareer!]!
   }
 
+  type SavedAIRecommendation {
+    id: ID!
+    title: String!
+    explanation: String!
+    requiredSkills: [String!]!
+    salaryRange: String!
+    roadmap: [String!]!
+    created_at: String!
+  }
+
   input SubmitAnswerInput {
     question_id: ID!
     answer: String!
@@ -73,6 +83,7 @@ export const typeDefs = `#graphql
     getQuestions: [Question!]!
     getUserDashboard: [Recommendation!]!
     getRecommendations: [Recommendation!]!
+    getSavedAIRecommendations: [SavedAIRecommendation!]!
     getAllUsers: [User!]!
     getPopularCareers: [Career!]!
     getUserStats: UserStats!
@@ -84,6 +95,14 @@ export const typeDefs = `#graphql
     loginUser(email: String!, password: String!): AuthPayload!
     submitAssessment(answers: [SubmitAnswerInput!]!): Boolean!
     generateCareerRecommendation: AIRecommendationResponse!
+    saveAIRecommendation(
+      title: String!
+      explanation: String!
+      requiredSkills: [String!]!
+      salaryRange: String!
+      roadmap: [String!]!
+    ): SavedAIRecommendation!
+    deleteSavedAIRecommendation(id: ID!): Boolean!
     saveCareer(careerId: ID!): Recommendation!
     
     # Admin mutations

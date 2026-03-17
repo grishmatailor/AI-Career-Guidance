@@ -11,6 +11,7 @@ import { SUBMIT_ASSESSMENT } from "@/graphql/mutations";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowRight, ArrowLeft } from "lucide-react";
+import type { AssessmentQuestion } from "@/types";
 
 export default function AssessmentPage() {
   const { data, loading } = useQuery(GET_QUESTIONS);
@@ -49,8 +50,8 @@ export default function AssessmentPage() {
       await submitAssessment({ variables: { answers: formattedAnswers } });
       toast.success("Assessment submitted!");
       router.push("/recommendations");
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit assessment");
     }
   };
 
@@ -73,7 +74,7 @@ export default function AssessmentPage() {
           <h1 className="text-3xl font-bold mb-2">Career Assessment</h1>
           <p className="text-slate-400">Answer these questions to help our AI understand you better.</p>
           <div className="mt-4 flex gap-1">
-            {questions.map((_: any, i: number) => (
+            {questions.map((_: AssessmentQuestion, i: number) => (
               <div 
                 key={i} 
                 className={`h-1 flex-1 rounded-full transition-colors ${i <= currentStep ? "bg-blue-600" : "bg-slate-800"}`} 
