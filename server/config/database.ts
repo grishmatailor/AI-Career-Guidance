@@ -12,13 +12,18 @@ dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: "postgres",
+  url: process.env.DATABASE_URL, // Preferred for Neon/Supabase
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432"),
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
   database: process.env.DB_NAME || "ai_career_guidance",
-  synchronize: true, // Auto create/update schema (set to false in production)
+  synchronize: process.env.NODE_ENV === "development", // Set to false in production for safety
   logging: false,
+  ssl: {
+    rejectUnauthorized: false, 
+  },
+  // ssl: process.env.DATABASE_URL || process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false,
   entities: [User, Question, Answer, Career, Recommendation, AIRecommendation],
   migrations: [],
   subscribers: [],

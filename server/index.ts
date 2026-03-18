@@ -46,10 +46,18 @@ async function startServer() {
   );
 
   const PORT = process.env.PORT || 4002;
-  await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
-  console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+  if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
+    await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
+    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+  }
+  
+  return { app, server, httpServer };
 }
 
-startServer().catch((err) => {
-  console.error("Error starting server:", err);
-});
+export { startServer };
+
+if (require.main === module) {
+  startServer().catch((err) => {
+    console.error("Error starting server:", err);
+  });
+}
