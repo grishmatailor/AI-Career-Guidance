@@ -79,7 +79,6 @@ export const typeDefs = `#graphql
 
   type Query {
     getCareers: [Career!]!
-    getCareerById(id: ID!): Career
     getQuestions: [Question!]!
     getUserDashboard: [Recommendation!]!
     getRecommendations: [Recommendation!]!
@@ -103,7 +102,6 @@ export const typeDefs = `#graphql
       roadmap: [String!]!
     ): SavedAIRecommendation!
     deleteSavedAIRecommendation(id: ID!): Boolean!
-    saveCareer(careerId: ID!): Recommendation!
     
     # Admin mutations
     createCareer(title: String!, description: String!, skills_required: [String!]!, salary_range: String!, growth_rate: String!): Career!

@@ -13,9 +13,6 @@ export const careerResolvers = {
     getCareers: async () => {
       return await AppDataSource.getRepository(Career).find();
     },
-    getCareerById: async (_: any, { id }: any) => {
-      return await AppDataSource.getRepository(Career).findOneBy({ id });
-    },
     getRecommendations: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
       return await AppDataSource.getRepository(Recommendation).find({
@@ -30,7 +27,7 @@ export const careerResolvers = {
         order: { created_at: "DESC" },
       });
     },
-    getUserDashboard: async (_: any, __: any, { user }: any) => {
+    getUserDashboard: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
       return await AppDataSource.getRepository(Recommendation).find({
         where: { user: { id: user.id } },
@@ -41,7 +38,7 @@ export const careerResolvers = {
       // Logic for popular careers (could be based on recommendation count)
       return await AppDataSource.getRepository(Career).find({ take: 5 });
     },
-    getUserStats: async (_: any, __: any, { user }: any) => {
+    getUserStats: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
 
       const answerRepo = AppDataSource.getRepository(Answer);
@@ -69,19 +66,31 @@ export const careerResolvers = {
     },
   },
   Mutation: {
-    createCareer: async (_: any, args: any, { user }: any) => {
+    createCareer: async (
+      _: unknown,
+      args: Partial<Career>,
+      { user }: { user: User }
+    ) => {
       if (!user || user.role !== "admin") throw new Error("Unauthorized");
       const careerRepository = AppDataSource.getRepository(Career);
       const career = careerRepository.create(args);
       return await careerRepository.save(career);
     },
-    updateCareer: async (_: any, { id, ...args }: any, { user }: any) => {
+    updateCareer: async (
+      _: unknown,
+      { id, ...args }: Partial<Career> & { id: string },
+      { user }: { user: User }
+    ) => {
       if (!user || user.role !== "admin") throw new Error("Unauthorized");
       const careerRepository = AppDataSource.getRepository(Career);
       await careerRepository.update(id, args);
       return await careerRepository.findOneBy({ id });
     },
-    deleteCareer: async (_: any, { id }: any, { user }: any) => {
+    deleteCareer: async (
+      _: unknown,
+      { id }: { id: string },
+      { user }: { user: User }
+    ) => {
       if (!user || user.role !== "admin") throw new Error("Unauthorized");
       await AppDataSource.getRepository(Career).delete(id);
       return true;
@@ -154,15 +163,5 @@ export const careerResolvers = {
       await aiRecRepo.delete({ id, user: { id: user.id } });
       return true;
     },
-    saveCareer: async (_: unknown, { careerId }: { careerId: string }, { user }: { user: User }) => {
-      if (!user) throw new Error("Unauthorized");
-      const recommendationRepo = AppDataSource.getRepository(Recommendation);
-      const recommendation = recommendationRepo.create({
-        user: { id: user.id } as User,
-        career: { id: careerId } as Career,
-        score: 100,
-      });
-      return await recommendationRepo.save(recommendation);
-    }
   },
 };
