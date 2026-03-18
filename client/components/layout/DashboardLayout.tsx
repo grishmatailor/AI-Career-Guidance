@@ -10,11 +10,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) {
       router.push("/login");
     } else {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
     }
   }, [router]);
 
