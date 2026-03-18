@@ -74,14 +74,6 @@ export const DELETE_SAVED_AI_RECOMMENDATION = gql`
   }
 `;
 
-export const SAVE_CAREER = gql`
-  mutation SaveCareer($careerId: ID!) {
-    saveCareer(careerId: $careerId) {
-      id
-    }
-  }
-`;
-
 export const CHAT_CAREER = gql`
   mutation ChatCareer($message: String!) {
     chatCareer(message: $message)

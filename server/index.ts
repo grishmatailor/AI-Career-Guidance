@@ -10,7 +10,7 @@ import { initializeDatabase } from "./config/database";
 import { seedData } from "./config/seed";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
-import { authMiddleware } from "./middleware/auth";
+import { authMiddleware, AuthUser } from "./middleware/auth";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -24,7 +24,7 @@ async function startServer() {
   await seedData();
 
   // Apollo Server setup
-  const server = new ApolloServer({
+  const server = new ApolloServer<{ user: AuthUser | null }>({
     typeDefs,
     resolvers,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],

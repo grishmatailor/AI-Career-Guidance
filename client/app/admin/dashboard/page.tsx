@@ -3,8 +3,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { useQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 import { Users, Briefcase, HelpCircle, TrendingUp, Loader2 } from "lucide-react";
 import type { User } from "@/types";
 
@@ -24,6 +23,9 @@ const GET_ADMIN_STATS = gql`
     getQuestions {
       id
     }
+    getPopularCareers {
+      id
+    }
   }
 `;
 
@@ -32,6 +34,7 @@ export default function AdminDashboard() {
   const users = data?.getAllUsers || [];
   const careers = data?.getCareers || [];
   const questions = data?.getQuestions || [];
+  const popularCareers = data?.getPopularCareers || [];
 
   if (loading) {
     return (
@@ -84,7 +87,7 @@ export default function AdminDashboard() {
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1.2k</div>
+            <div className="text-2xl font-bold">{popularCareers.length}</div>
           </CardContent>
         </Card>
       </div>

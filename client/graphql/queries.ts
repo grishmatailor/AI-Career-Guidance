@@ -51,19 +51,6 @@ export const GET_CAREERS = gql`
   }
 `;
 
-export const GET_CAREER_BY_ID = gql`
-  query GetCareerById($id: ID!) {
-    getCareerById(id: $id) {
-      id
-      title
-      description
-      skills_required
-      salary_range
-      growth_rate
-    }
-  }
-`;
-
 export const ME = gql`
   query Me {
     me {

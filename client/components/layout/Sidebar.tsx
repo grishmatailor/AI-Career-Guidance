@@ -14,7 +14,7 @@ import {
   TrendingUp,
   BookmarkCheck,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, role: "user" },
@@ -29,12 +29,14 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [role, setRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setRole(user.role || "user");
-  }, []);
+  const [role] = useState<string>(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user.role || "user";
+    } catch {
+      return "user";
+    }
+  });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -52,7 +54,7 @@ export function Sidebar() {
       </div>
       
       <nav className="flex-1 px-4 space-y-2">
-        {menuItems.filter(item => !item.role || item.role === role || role === "admin").map((item) => (
+        {menuItems.filter(item => item.role === role).map((item) => (
           <Link
             key={item.name}
             href={item.href}

@@ -56,13 +56,3 @@ export interface UserStats {
   hasCompletedAssessment: boolean;
 }
 
-// ─── Admin ───────────────────────────────────────────────────────────────────
-
-export interface AdminCareer {
-  id: string;
-  title: string;
-}
-
-export interface AdminQuestion {
-  id: string;
-}

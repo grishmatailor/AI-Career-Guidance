@@ -49,7 +49,7 @@ export default function AssessmentPage() {
     try {
       await submitAssessment({ variables: { answers: formattedAnswers } });
       toast.success("Assessment submitted!");
-      router.push("/recommendations");
+      router.push("/recommendations?fromAssessment=true");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to submit assessment");
     }
