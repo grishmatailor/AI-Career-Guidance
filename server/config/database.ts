@@ -43,8 +43,8 @@ export const AppDataSource = new DataSource({
   // password: process.env.DB_PASSWORD || "postgres",
   // database: process.env.DB_NAME || "ai_career_guidance",
 
-  synchronize: true, // ⚠️ ALWAYS false in production
-  logging: false,
+  synchronize: false, // ⚠️ ALWAYS false in production
+  logging: true,
 
   ssl: {
     rejectUnauthorized: false,
@@ -79,7 +79,15 @@ export const AppDataSource = new DataSource({
 // });
 console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
+let dataSource: DataSource | null = null;
+
 export const initializeDatabase = async () => {
-  await AppDataSource.initialize();
-  console.log("Data Source has been initialized!");
+  if (dataSource && dataSource.isInitialized) {
+    return dataSource;
+  }
+
+  dataSource = await AppDataSource.initialize();
+  console.log("DB Connected");
+
+  return dataSource;
 };
