@@ -22,7 +22,9 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
     "concurrently": "^8.2.2",
+    "tailwindcss": "^4",
     "typescript": "^5"
   },
   "overrides": {
