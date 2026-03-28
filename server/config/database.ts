@@ -43,7 +43,7 @@ export const AppDataSource = new DataSource({
   // password: process.env.DB_PASSWORD || "postgres",
   // database: process.env.DB_NAME || "ai_career_guidance",
 
-  synchronize: true, // ⚠️ ALWAYS false in production
+  synchronize: false, // ⚠️ ALWAYS false in production
   logging: false,
 
   ssl: {
