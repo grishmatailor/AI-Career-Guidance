@@ -8,7 +8,9 @@ import { Recommendation } from "../entities/Recommendation";
 import { AIRecommendation } from "../entities/AIRecommendation";
 import dotenv from "dotenv";
 
-dotenv.config();
+import path from "path";
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 // export const AppDataSource = new DataSource({
 //   type: "postgres",
@@ -28,29 +30,54 @@ dotenv.config();
 //   migrations: [],
 //   subscribers: [],
 // });
-const isProduction = process.env.NODE_ENV === "production";
-
 export const AppDataSource = new DataSource({
   type: "postgres",
 
-  ...(process.env.DATABASE_URL
-    ? {
-        url: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-      }
-    : {
-        host: process.env.DB_HOST || "localhost",
-        port: parseInt(process.env.DB_PORT || "5432"),
-        username: process.env.DB_USER || "postgres",
-        password: process.env.DB_PASSWORD || "postgres",
-        database: process.env.DB_NAME || "ai_career_guidance",
-      }),
+  // ✅ Use Supabase connection string
+  url: process.env.DATABASE_URL,
 
-  synchronize: !isProduction,
+  // ❌ REMOVE these in production
+  // host: process.env.DB_HOST || "localhost",
+  // port: parseInt(process.env.DB_PORT || "5432"),
+  // username: process.env.DB_USER || "postgres",
+  // password: process.env.DB_PASSWORD || "postgres",
+  // database: process.env.DB_NAME || "ai_career_guidance",
+
+  synchronize: true, // ⚠️ ALWAYS false in production
   logging: false,
 
+  ssl: {
+    rejectUnauthorized: false,
+  },
+
   entities: [User, Question, Answer, Career, Recommendation, AIRecommendation],
+  migrations: [],
+  subscribers: [],
 });
+// const isProduction = process.env.NODE_ENV === "production";
+
+// export const AppDataSource = new DataSource({
+//   type: "postgres",
+
+//   ...(process.env.DATABASE_URL
+//     ? {
+//         url: process.env.DATABASE_URL,
+//         ssl: { rejectUnauthorized: false },
+//       }
+//     : {
+//         host: process.env.DB_HOST || "localhost",
+//         port: parseInt(process.env.DB_PORT || "5432"),
+//         username: process.env.DB_USER || "postgres",
+//         password: process.env.DB_PASSWORD || "postgres",
+//         database: process.env.DB_NAME || "ai_career_guidance",
+//       }),
+
+//   synchronize: !isProduction,
+//   logging: false,
+
+//   entities: [User, Question, Answer, Career, Recommendation, AIRecommendation],
+// });
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 export const initializeDatabase = async () => {
   await AppDataSource.initialize();
