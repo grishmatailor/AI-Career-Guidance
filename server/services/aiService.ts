@@ -1,14 +1,13 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(
-  process.env.GEMINI_API_KEY || "your_gemini_api_key"
-);
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
-// Use gemini-1.5-flash which is widely compatible for development
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const MODEL = "llama-3.3-70b-versatile";
 
 interface UserProfile {
   interests: string[];
@@ -44,10 +43,15 @@ Respond ONLY with a valid JSON object in this exact format (no markdown, no code
 }`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim();
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: MODEL,
+      temperature: 0.7,
+    });
 
-    // Strip markdown code fences if Gemini adds them
+    const text = chatCompletion.choices[0]?.message?.content?.trim() || "";
+
+    // Strip markdown code fences if the model adds them
     const cleaned = text
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
@@ -66,7 +70,7 @@ Respond ONLY with a valid JSON object in this exact format (no markdown, no code
       throw parseErr;
     }
   } catch (err) {
-    console.error("Gemini Recommendation Error:", err);
+    console.error("Groq Recommendation Error:", err);
     throw new Error("Failed to generate AI recommendations. Please check your API key.");
   }
 };
@@ -84,10 +88,16 @@ User question: ${userMessage}
 Provide a concise, helpful, and encouraging career guidance response. Keep it under 3 paragraphs.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    return result.response.text();
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: MODEL,
+      temperature: 0.7,
+    });
+
+    return chatCompletion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
   } catch (err) {
-    console.error("Gemini Chat Error:", err);
+    console.error("Groq Chat Error:", err);
     return "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.";
+0
   }
 };
