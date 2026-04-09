@@ -1,9 +1,9 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "rootDirectory": "client",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
+  "outputDirectory": "client/.next",
   "rewrites": [
     {
       "source": "/api/graphql",
