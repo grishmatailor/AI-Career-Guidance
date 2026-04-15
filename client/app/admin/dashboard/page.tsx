@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { useQuery, gql } from "@apollo/client";
-import { Users, Briefcase, HelpCircle, TrendingUp, Loader2 } from "lucide-react";
+import { Users, Sparkles, HelpCircle, TrendingUp, Loader2 } from "lucide-react";
 import type { User } from "@/types";
 
 const GET_ADMIN_STATS = gql`
@@ -16,14 +16,7 @@ const GET_ADMIN_STATS = gql`
       role
       created_at
     }
-    getCareers {
-      id
-      title
-    }
     getQuestions {
-      id
-    }
-    getPopularCareers {
       id
     }
   }
@@ -32,9 +25,12 @@ const GET_ADMIN_STATS = gql`
 export default function AdminDashboard() {
   const { data, loading } = useQuery(GET_ADMIN_STATS);
   const users = data?.getAllUsers || [];
-  const careers = data?.getCareers || [];
   const questions = data?.getQuestions || [];
-  const popularCareers = data?.getPopularCareers || [];
+  
+  // Calculate stats
+  const totalUsers = users.length;
+  const adminUsers = users.filter((u: User) => u.role === "admin").length;
+  const regularUsers = totalUsers - adminUsers;
 
   if (loading) {
     return (
@@ -60,34 +56,38 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold">{totalUsers}</div>
+            <p className="text-xs text-slate-500 mt-1">{adminUsers} admin, {regularUsers} regular</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-white/10">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Careers</CardTitle>
-            <Briefcase className="h-4 w-4 text-purple-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{careers.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-slate-900 border-white/10">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Questions</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">Assessment Questions</CardTitle>
             <HelpCircle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{questions.length}</div>
+            <p className="text-xs text-slate-500 mt-1">Used in assessments</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-white/10">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Recommendations</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-400">AI Recommendations</CardTitle>
+            <Sparkles className="h-4 w-4 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">Dynamic</div>
+            <p className="text-xs text-slate-500 mt-1">Generated per assessment</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-slate-900 border-white/10">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-slate-400">System Status</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{popularCareers.length}</div>
+            <div className="text-2xl font-bold text-green-400">Operational</div>
+            <p className="text-xs text-slate-500 mt-1">All systems active</p>
           </CardContent>
         </Card>
       </div>
@@ -128,3 +128,4 @@ export default function AdminDashboard() {
     </DashboardLayout>
   );
 }
+

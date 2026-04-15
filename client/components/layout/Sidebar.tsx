@@ -11,7 +11,6 @@ import {
   Settings, 
   LogOut,
   ShieldCheck,
-  TrendingUp,
   BookmarkCheck,
 } from "lucide-react";
 import { useState } from "react";
@@ -23,7 +22,6 @@ const menuItems = [
   { name: "Saved Recommendations", href: "/saved-recommendations", icon: BookmarkCheck, role: "user" },
   { name: "Chatbot", href: "/chatbot", icon: MessageSquare, role: "user" },
   { name: "Admin Dashboard", href: "/admin/dashboard", icon: ShieldCheck, role: "admin" },
-  { name: "Manage Careers", href: "/admin/careers", icon: TrendingUp, role: "admin" },
   { name: "Manage Questions", href: "/admin/questions", icon: Settings, role: "admin" },
 ];
 
