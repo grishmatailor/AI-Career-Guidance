@@ -30,9 +30,13 @@ export const questionResolvers = {
     submitAssessment: async (_: any, { answers }: any, { user }: any) => {
       if (!user) throw new Error("Unauthorized");
       const answerRepo = AppDataSource.getRepository(Answer);
+      const userRepo = AppDataSource.getRepository(User);
       
       // Clear old answers
       await answerRepo.delete({ user: { id: user.id } });
+
+      // Increment assessment count
+      await userRepo.increment({ id: user.id }, "assessmentCount", 1);
 
       const answerEntities = answers.map((a: any) => 
         answerRepo.create({

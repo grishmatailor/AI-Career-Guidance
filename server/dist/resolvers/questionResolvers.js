@@ -4,6 +4,7 @@ exports.questionResolvers = void 0;
 const database_1 = require("../config/database");
 const Question_1 = require("../entities/Question");
 const Answer_1 = require("../entities/Answer");
+const User_1 = require("../entities/User");
 exports.questionResolvers = {
     Query: {
         getQuestions: async () => {
@@ -35,8 +36,11 @@ exports.questionResolvers = {
             if (!user)
                 throw new Error("Unauthorized");
             const answerRepo = database_1.AppDataSource.getRepository(Answer_1.Answer);
+            const userRepo = database_1.AppDataSource.getRepository(User_1.User);
             // Clear old answers
             await answerRepo.delete({ user: { id: user.id } });
+            // Increment assessment count
+            await userRepo.increment({ id: user.id }, "assessmentCount", 1);
             const answerEntities = answers.map((a) => answerRepo.create({
                 user: { id: user.id },
                 question: { id: a.question_id },

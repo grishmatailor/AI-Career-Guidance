@@ -98,6 +98,5 @@ Provide a concise, helpful, and encouraging career guidance response. Keep it un
   } catch (err) {
     console.error("Groq Chat Error:", err);
     return "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.";
-0
   }
 };

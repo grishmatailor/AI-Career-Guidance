@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm";
 import { Answer } from "./Answer";
-import { Recommendation } from "./Recommendation";
 
 @Entity("users")
 export class User {
@@ -22,12 +21,12 @@ export class User {
   @Column({ nullable: true })
   education?: string;
 
+  @Column({ default: 0 })
+  assessmentCount!: number;
+
   @CreateDateColumn()
   created_at!: Date;
 
   @OneToMany(() => Answer, (answer) => answer.user)
   answers!: Answer[];
-
-  @OneToMany(() => Recommendation, (recommendation) => recommendation.user)
-  recommendations!: Recommendation[];
 }

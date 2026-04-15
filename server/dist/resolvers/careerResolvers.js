@@ -2,25 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.careerResolvers = void 0;
 const database_1 = require("../config/database");
-const Career_1 = require("../entities/Career");
-const Recommendation_1 = require("../entities/Recommendation");
 const AIRecommendation_1 = require("../entities/AIRecommendation");
 const User_1 = require("../entities/User");
 const Answer_1 = require("../entities/Answer");
 const aiService_1 = require("../services/aiService");
 exports.careerResolvers = {
     Query: {
-        getCareers: async () => {
-            return await database_1.AppDataSource.getRepository(Career_1.Career).find();
-        },
-        getRecommendations: async (_, __, { user }) => {
-            if (!user)
-                throw new Error("Unauthorized");
-            return await database_1.AppDataSource.getRepository(Recommendation_1.Recommendation).find({
-                where: { user: { id: user.id } },
-                relations: ["career"],
-            });
-        },
         getSavedAIRecommendations: async (_, __, { user }) => {
             if (!user)
                 throw new Error("Unauthorized");
@@ -29,64 +16,29 @@ exports.careerResolvers = {
                 order: { created_at: "DESC" },
             });
         },
-        getUserDashboard: async (_, __, { user }) => {
-            if (!user)
-                throw new Error("Unauthorized");
-            return await database_1.AppDataSource.getRepository(Recommendation_1.Recommendation).find({
-                where: { user: { id: user.id } },
-                relations: ["career"],
-            });
-        },
-        getPopularCareers: async () => {
-            // Logic for popular careers (could be based on recommendation count)
-            return await database_1.AppDataSource.getRepository(Career_1.Career).find({ take: 5 });
-        },
         getUserStats: async (_, __, { user }) => {
             if (!user)
                 throw new Error("Unauthorized");
-            const answerRepo = database_1.AppDataSource.getRepository(Answer_1.Answer);
-            const recommendationRepo = database_1.AppDataSource.getRepository(Recommendation_1.Recommendation);
+            const aiRecRepo = database_1.AppDataSource.getRepository(AIRecommendation_1.AIRecommendation);
             const userRepo = database_1.AppDataSource.getRepository(User_1.User);
-            const [answerCount, careerMatches, dbUser] = await Promise.all([
-                answerRepo.count({ where: { user: { id: user.id } } }),
-                recommendationRepo.count({ where: { user: { id: user.id } } }),
+            const [aiRecommendations, dbUser] = await Promise.all([
+                aiRecRepo.count({ where: { user: { id: user.id } } }),
                 userRepo.findOneBy({ id: user.id }),
             ]);
             return {
-                // Each assessment submits all answers at once; if any answers exist, assessment was done
-                totalAssessments: answerCount > 0 ? 1 : 0,
-                careerMatches,
+                totalAssessments: dbUser?.assessmentCount ?? 0,
+                careerMatches: aiRecommendations,
                 memberSince: dbUser?.created_at
                     ? new Date(dbUser.created_at).toLocaleDateString("en-US", {
                         month: "long",
                         year: "numeric",
                     })
                     : "Recently",
-                hasCompletedAssessment: answerCount > 0,
+                hasCompletedAssessment: (dbUser?.assessmentCount ?? 0) > 0,
             };
         },
     },
     Mutation: {
-        createCareer: async (_, args, { user }) => {
-            if (!user || user.role !== "admin")
-                throw new Error("Unauthorized");
-            const careerRepository = database_1.AppDataSource.getRepository(Career_1.Career);
-            const career = careerRepository.create(args);
-            return await careerRepository.save(career);
-        },
-        updateCareer: async (_, { id, ...args }, { user }) => {
-            if (!user || user.role !== "admin")
-                throw new Error("Unauthorized");
-            const careerRepository = database_1.AppDataSource.getRepository(Career_1.Career);
-            await careerRepository.update(id, args);
-            return await careerRepository.findOneBy({ id });
-        },
-        deleteCareer: async (_, { id }, { user }) => {
-            if (!user || user.role !== "admin")
-                throw new Error("Unauthorized");
-            await database_1.AppDataSource.getRepository(Career_1.Career).delete(id);
-            return true;
-        },
         generateCareerRecommendation: async (_, __, { user }) => {
             if (!user)
                 throw new Error("Unauthorized");

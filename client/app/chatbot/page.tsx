@@ -23,7 +23,7 @@ export default function ChatbotPage() {
     {
       role: "assistant",
       content:
-        "Hello! I'm your AI Career Guide powered by Google Gemini. Ask me anything about careers, skills, or your professional journey! 🚀",
+        "Hello! I'm your AI Career Guide powered by Groq. Ask me anything about careers, skills, or your professional journey! 🚀",
     },
   ]);
   const [input, setInput] = useState("");
@@ -70,7 +70,7 @@ export default function ChatbotPage() {
         </h1>
         <p className="text-slate-400">
           Powered by{" "}
-          <span className="text-blue-400 font-medium">Google Gemini</span> —
+          <span className="text-blue-400 font-medium">Groq</span> —
           Ask anything about careers, skills, or industry trends.
         </p>
       </div>
@@ -85,11 +85,10 @@ export default function ChatbotPage() {
               >
                 {/* Avatar */}
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                    m.role === "assistant"
-                      ? "bg-blue-600 text-white"
-                      : "bg-slate-700 text-slate-300"
-                  }`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === "assistant"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-700 text-slate-300"
+                    }`}
                 >
                   {m.role === "assistant" ? (
                     <Bot size={16} />
@@ -100,11 +99,10 @@ export default function ChatbotPage() {
 
                 {/* Bubble */}
                 <div
-                  className={`px-4 py-3 rounded-2xl max-w-[78%] text-sm leading-relaxed whitespace-pre-wrap ${
-                    m.role === "assistant"
-                      ? "bg-white/5 text-slate-200 border border-white/5 rounded-tl-none"
-                      : "bg-blue-600 text-white rounded-tr-none"
-                  }`}
+                  className={`px-4 py-3 rounded-2xl max-w-[78%] text-sm leading-relaxed whitespace-pre-wrap ${m.role === "assistant"
+                    ? "bg-white/5 text-slate-200 border border-white/5 rounded-tl-none"
+                    : "bg-blue-600 text-white rounded-tr-none"
+                    }`}
                 >
                   {m.content}
                 </div>

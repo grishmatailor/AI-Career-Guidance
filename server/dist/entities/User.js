@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const Answer_1 = require("./Answer");
-const Recommendation_1 = require("./Recommendation");
 let User = class User {
 };
 exports.User = User;
@@ -41,6 +40,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "education", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "assessmentCount", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "created_at", void 0);
@@ -48,10 +51,6 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Answer_1.Answer, (answer) => answer.user),
     __metadata("design:type", Array)
 ], User.prototype, "answers", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => Recommendation_1.Recommendation, (recommendation) => recommendation.user),
-    __metadata("design:type", Array)
-], User.prototype, "recommendations", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)("users")
 ], User);

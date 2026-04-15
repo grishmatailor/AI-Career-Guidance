@@ -3,8 +3,6 @@ import { DataSource } from "typeorm";
 import { User } from "../entities/User";
 import { Question } from "../entities/Question";
 import { Answer } from "../entities/Answer";
-import { Career } from "../entities/Career";
-import { Recommendation } from "../entities/Recommendation";
 import { AIRecommendation } from "../entities/AIRecommendation";
 import dotenv from "dotenv";
 
@@ -33,7 +31,7 @@ export const AppDataSource = new DataSource({
   synchronize: !isProduction,
   logging: false,
 
-  entities: [User, Question, Answer, Career, Recommendation, AIRecommendation],
+  entities: [User, Question, Answer, AIRecommendation],
 });
 
 let dataSource: DataSource | null = null;

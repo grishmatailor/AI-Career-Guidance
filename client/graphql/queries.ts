@@ -10,23 +10,6 @@ export const GET_QUESTIONS = gql`
   }
 `;
 
-export const GET_USER_DASHBOARD = gql`
-  query GetUserDashboard {
-    getUserDashboard {
-      id
-      score
-      career {
-        id
-        title
-        description
-        salary_range
-        skills_required
-        growth_rate
-      }
-    }
-  }
-`;
-
 export const GET_USER_STATS = gql`
   query GetUserStats {
     getUserStats {
@@ -34,19 +17,6 @@ export const GET_USER_STATS = gql`
       careerMatches
       memberSince
       hasCompletedAssessment
-    }
-  }
-`;
-
-export const GET_CAREERS = gql`
-  query GetCareers {
-    getCareers {
-      id
-      title
-      description
-      skills_required
-      salary_range
-      growth_rate
     }
   }
 `;
@@ -76,4 +46,3 @@ export const GET_SAVED_AI_RECOMMENDATIONS = gql`
     }
   }
 `;
-

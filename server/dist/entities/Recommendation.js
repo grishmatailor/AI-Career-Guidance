@@ -34,6 +34,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: "float", default: 0 }),
     __metadata("design:type", Number)
 ], Recommendation.prototype, "score", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Recommendation.prototype, "created_at", void 0);
 exports.Recommendation = Recommendation = __decorate([
     (0, typeorm_1.Entity)("recommendations")
 ], Recommendation);

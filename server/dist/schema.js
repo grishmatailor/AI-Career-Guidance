@@ -24,22 +24,7 @@ exports.typeDefs = `#graphql
     answer: String!
   }
 
-  type Career {
-    id: ID!
-    title: String!
-    description: String!
-    skills_required: [String!]!
-    salary_range: String!
-    growth_rate: String!
-  }
 
-  type Recommendation {
-    id: ID!
-    user: User!
-    career: Career!
-    score: Float!
-    created_at: String
-  }
 
   type UserStats {
     totalAssessments: Int!
@@ -81,13 +66,9 @@ exports.typeDefs = `#graphql
   }
 
   type Query {
-    getCareers: [Career!]!
     getQuestions: [Question!]!
-    getUserDashboard: [Recommendation!]!
-    getRecommendations: [Recommendation!]!
     getSavedAIRecommendations: [SavedAIRecommendation!]!
     getAllUsers: [User!]!
-    getPopularCareers: [Career!]!
     getUserStats: UserStats!
     me: User
   }
@@ -105,11 +86,6 @@ exports.typeDefs = `#graphql
       roadmap: [String!]!
     ): SavedAIRecommendation!
     deleteSavedAIRecommendation(id: ID!): Boolean!
-    
-    # Admin mutations
-    createCareer(title: String!, description: String!, skills_required: [String!]!, salary_range: String!, growth_rate: String!): Career!
-    updateCareer(id: ID!, title: String, description: String, skills_required: [String!], salary_range: String, growth_rate: String): Career!
-    deleteCareer(id: ID!): Boolean!
     
     createQuestion(question: String!, category: String!): Question!
     updateQuestion(id: ID!, question: String, category: String): Question!

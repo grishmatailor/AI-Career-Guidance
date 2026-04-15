@@ -60,7 +60,9 @@ export default function SavedRecommendationsPage() {
 
   const formatDate = (dateStr: string) => {
     try {
-      return new Date(dateStr).toLocaleString("en-US", {
+      const d = new Date(Number(dateStr) || dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",

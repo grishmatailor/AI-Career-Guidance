@@ -8,6 +8,7 @@ import cors from "cors";
 import { json } from "body-parser";
 import { initializeDatabase } from "./config/database";
 import { seedData } from "./config/seed";
+import { migrateDatabase } from "./config/migrate";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
 import { authMiddleware, AuthUser } from "./middleware/auth";
@@ -21,6 +22,7 @@ async function startServer() {
 
   // Initialize Database
   await initializeDatabase();
+  await migrateDatabase();
   await seedData();
 
   // Apollo Server setup

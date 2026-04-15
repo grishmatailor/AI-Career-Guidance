@@ -1,25 +1,11 @@
 import { AppDataSource } from "../config/database";
-import { Career } from "../entities/Career";
-import { Recommendation } from "../entities/Recommendation";
 import { AIRecommendation } from "../entities/AIRecommendation";
 import { User } from "../entities/User";
 import { Answer } from "../entities/Answer";
 import { getAIRecommendations } from "../services/aiService";
 
-
-
 export const careerResolvers = {
   Query: {
-    getCareers: async () => {
-      return await AppDataSource.getRepository(Career).find();
-    },
-    getRecommendations: async (_: unknown, __: unknown, { user }: { user: User }) => {
-      if (!user) throw new Error("Unauthorized");
-      return await AppDataSource.getRepository(Recommendation).find({
-        where: { user: { id: user.id } },
-        relations: ["career"],
-      });
-    },
     getSavedAIRecommendations: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
       return await AppDataSource.getRepository(AIRecommendation).find({
@@ -27,74 +13,31 @@ export const careerResolvers = {
         order: { created_at: "DESC" },
       });
     },
-    getUserDashboard: async (_: unknown, __: unknown, { user }: { user: User }) => {
-      if (!user) throw new Error("Unauthorized");
-      return await AppDataSource.getRepository(Recommendation).find({
-        where: { user: { id: user.id } },
-        relations: ["career"],
-      });
-    },
-    getPopularCareers: async () => {
-      // Logic for popular careers (could be based on recommendation count)
-      return await AppDataSource.getRepository(Career).find({ take: 5 });
-    },
     getUserStats: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
 
-      const answerRepo = AppDataSource.getRepository(Answer);
-      const recommendationRepo = AppDataSource.getRepository(Recommendation);
+      const aiRecRepo = AppDataSource.getRepository(AIRecommendation);
       const userRepo = AppDataSource.getRepository(User);
 
-      const [answerCount, careerMatches, dbUser] = await Promise.all([
-        answerRepo.count({ where: { user: { id: user.id } } }),
-        recommendationRepo.count({ where: { user: { id: user.id } } }),
+      const [aiRecommendations, dbUser] = await Promise.all([
+        aiRecRepo.count({ where: { user: { id: user.id } } }),
         userRepo.findOneBy({ id: user.id }),
       ]);
 
       return {
-        // Each assessment submits all answers at once; if any answers exist, assessment was done
-        totalAssessments: answerCount > 0 ? 1 : 0,
-        careerMatches,
+        totalAssessments: dbUser?.assessmentCount ?? 0,
+        careerMatches: aiRecommendations,
         memberSince: dbUser?.created_at
           ? new Date(dbUser.created_at).toLocaleDateString("en-US", {
               month: "long",
               year: "numeric",
             })
           : "Recently",
-        hasCompletedAssessment: answerCount > 0,
+        hasCompletedAssessment: (dbUser?.assessmentCount ?? 0) > 0,
       };
     },
   },
   Mutation: {
-    createCareer: async (
-      _: unknown,
-      args: Partial<Career>,
-      { user }: { user: User }
-    ) => {
-      if (!user || user.role !== "admin") throw new Error("Unauthorized");
-      const careerRepository = AppDataSource.getRepository(Career);
-      const career = careerRepository.create(args);
-      return await careerRepository.save(career);
-    },
-    updateCareer: async (
-      _: unknown,
-      { id, ...args }: Partial<Career> & { id: string },
-      { user }: { user: User }
-    ) => {
-      if (!user || user.role !== "admin") throw new Error("Unauthorized");
-      const careerRepository = AppDataSource.getRepository(Career);
-      await careerRepository.update(id, args);
-      return await careerRepository.findOneBy({ id });
-    },
-    deleteCareer: async (
-      _: unknown,
-      { id }: { id: string },
-      { user }: { user: User }
-    ) => {
-      if (!user || user.role !== "admin") throw new Error("Unauthorized");
-      await AppDataSource.getRepository(Career).delete(id);
-      return true;
-    },
     generateCareerRecommendation: async (_: unknown, __: unknown, { user }: { user: User }) => {
       if (!user) throw new Error("Unauthorized");
 
@@ -165,3 +108,4 @@ export const careerResolvers = {
     },
   },
 };
+

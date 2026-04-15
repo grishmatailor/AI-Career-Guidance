@@ -14,6 +14,7 @@ const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = require("body-parser");
 const database_1 = require("./config/database");
 const seed_1 = require("./config/seed");
+const migrate_1 = require("./config/migrate");
 const schema_1 = require("./schema");
 const resolvers_1 = require("./resolvers");
 const auth_1 = require("./middleware/auth");
@@ -24,6 +25,7 @@ async function startServer() {
     const httpServer = http_1.default.createServer(app);
     // Initialize Database
     await (0, database_1.initializeDatabase)();
+    await (0, migrate_1.migrateDatabase)();
     await (0, seed_1.seedData)();
     // Apollo Server setup
     const server = new server_1.ApolloServer({

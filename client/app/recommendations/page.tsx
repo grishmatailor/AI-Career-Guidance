@@ -5,7 +5,7 @@ import {
   GENERATE_RECOMMENDATION,
   SAVE_AI_RECOMMENDATION,
 } from "@/graphql/mutations";
-import { GET_SAVED_AI_RECOMMENDATIONS } from "@/graphql/queries";
+import { GET_SAVED_AI_RECOMMENDATIONS, GET_USER_STATS } from "@/graphql/queries";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,7 +61,7 @@ function RecommendationsContent() {
 
   const [saveAIRecommendation] = useMutation(SAVE_AI_RECOMMENDATION);
 
-  // Fetch previously saved recommendations to show when not coming from assessment
+  // Fetch previously saved recommendations
   const { data: savedData, loading: savedLoading } = useQuery(
     GET_SAVED_AI_RECOMMENDATIONS,
     { fetchPolicy: "network-only" }
@@ -69,22 +69,13 @@ function RecommendationsContent() {
   const savedRecs: SavedRecommendation[] =
     savedData?.getSavedAIRecommendations ?? [];
 
-  const handleGenerate = async () => {
-    try {
-      const res = await generateRecommendation();
-      const careers: CareerRecommendation[] =
-        res.data?.generateCareerRecommendation?.careers ?? [];
-      setRecommendations(careers);
-      // Reset saved states on fresh generation
-      setSavedTitles(new Set());
-    } catch (err: unknown) {
-      toast.error(
-        err instanceof Error ? err.message : "Failed to generate recommendations"
-      );
-    }
-  };
+  // Check if the user has completed an assessment
+  const { data: statsData } = useQuery(GET_USER_STATS, {
+    fetchPolicy: "network-only",
+  });
+  const hasCompletedAssessment = statsData?.getUserStats?.hasCompletedAssessment ?? false;
 
-  // Auto-generate ONLY when the user arrives from the assessment page
+  // Auto-generate recommendations when coming from assessment
   useEffect(() => {
     if (fromAssessment && !hasFetched.current) {
       hasFetched.current = true;
@@ -92,6 +83,20 @@ function RecommendationsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromAssessment]);
+
+  const handleGenerate = async () => {
+    try {
+      const res = await generateRecommendation();
+      const careers: CareerRecommendation[] =
+        res.data?.generateCareerRecommendation?.careers ?? [];
+      setRecommendations(careers);
+      setSavedTitles(new Set());
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to generate recommendations"
+      );
+    }
+  };
 
   const handleSave = async (career: CareerRecommendation) => {
     if (savedTitles.has(career.title)) return; // already saved
@@ -123,7 +128,9 @@ function RecommendationsContent() {
 
   const formatDate = (dateStr: string) => {
     try {
-      return new Date(dateStr).toLocaleString("en-US", {
+      const d = new Date(Number(dateStr) || dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -133,8 +140,8 @@ function RecommendationsContent() {
     }
   };
 
-  // ─── State: NOT from assessment, no fresh recommendations ──────────────────
-  const showAssessmentPrompt = !fromAssessment && recommendations.length === 0;
+  // Show assessment prompt only when the user hasn't completed assessment at all
+  const showAssessmentPrompt = !hasCompletedAssessment && recommendations.length === 0;
 
   return (
     <DashboardLayout>
@@ -146,13 +153,15 @@ function RecommendationsContent() {
               AI Career Matches
             </h1>
             <p className="text-slate-400">
-              {fromAssessment || recommendations.length > 0
+              {recommendations.length > 0
                 ? <>AI has analyzed your profile. Click{" "}<span className="text-blue-400 font-semibold">Save</span> on any career to add it to your saved collection.</>
+                : hasCompletedAssessment
+                ? "Your assessment is complete. Generate AI career recommendations or view your previously saved ones."
                 : "Complete the assessment so our AI can analyze your profile and generate personalized career matches."}
             </p>
           </div>
 
-          {(fromAssessment || recommendations.length > 0) && (
+          {(hasCompletedAssessment || recommendations.length > 0) && (
             <div className="flex items-center gap-3">
               <Link href="/saved-recommendations">
                 <Button
@@ -163,6 +172,7 @@ function RecommendationsContent() {
                   Saved ({savedTitles.size})
                 </Button>
               </Link>
+              {recommendations.length > 0 && (
               <Button
                 onClick={handleGenerate}
                 disabled={generating}
@@ -173,8 +183,9 @@ function RecommendationsContent() {
                   size={16}
                   className={generating ? "animate-spin" : ""}
                 />
-                {generating ? "Generating…" : "Regenerate"}
+                {generating ? "Generating…" : recommendations.length > 0 ? "Regenerate" : ""}
               </Button>
+              )}
             </div>
           )}
         </div>
@@ -194,7 +205,7 @@ function RecommendationsContent() {
           </p>
         </div>
       ) : recommendations.length > 0 ? (
-        /* ── Fresh Recommendations Grid ── */
+        /* ── AI Recommendations Grid ── */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <AnimatePresence>
             {recommendations.map((career, i) => {
@@ -315,6 +326,19 @@ function RecommendationsContent() {
               );
             })}
           </AnimatePresence>
+        </div>
+      ) : savedLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-slate-800 animate-pulse rounded-lg" />
+          ))}
+        </div>
+      ) : savedData.length > 0 && !fromAssessment ? (
+        /* ── Loading state ── */
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-slate-800 animate-pulse rounded-lg" />
+          ))}
         </div>
       ) : (
         /* ── No fresh recommendations: show prompt + saved list ── */

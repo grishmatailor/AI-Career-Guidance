@@ -1,0 +1,38 @@
+{
+  "users": [
+    {
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "name": "Demo Student",
+      "email": "user@example.com",
+      "password": "user123",
+      "role": "user"
+    }
+  ],
+  "questions": [
+    {
+      "question": "What are your primary interests?",
+      "category": "interests"
+    },
+    {
+      "question": "Which subjects did you enjoy most in school?",
+      "category": "interests"
+    },
+    {
+      "question": "List your top 3 technical or soft skills.",
+      "category": "skills"
+    },
+    {
+      "question": "How would you describe your personality (Introvert/Extrovert, Analytical, Creative)?",
+      "category": "personality"
+    },
+    {
+      "question": "What is your current or highest level of education?",
+      "category": "education"
+    }
+  ]
+}

@@ -12,25 +12,25 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Star,
   AlertCircle,
+  ChevronDown,
+  Briefcase,
+  TrendingUpIcon,
+  Award,
 } from "lucide-react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { GET_USER_DASHBOARD, GET_USER_STATS, ME } from "@/graphql/queries";
-import { useState } from "react";
+import { GET_USER_STATS, ME, GET_SAVED_AI_RECOMMENDATIONS } from "@/graphql/queries";
+import { useState, useEffect } from "react";
 
-interface Recommendation {
+interface AIRecommendation {
   id: string;
-  score: number;
-  career: {
-    id: string;
-    title: string;
-    description: string;
-    salary_range: string;
-    skills_required: string[];
-    growth_rate: string;
-  };
+  title: string;
+  explanation: string;
+  requiredSkills: string[];
+  salaryRange: string;
+  roadmap: string[];
+  created_at: string;
 }
 
 function SkeletonBox({ className }: { className?: string }) {
@@ -55,18 +55,33 @@ export default function UserDashboard() {
     }
   });
 
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   const { data: meData, loading: meLoading } = useQuery(ME);
-  const { data: statsData, loading: statsLoading } = useQuery(GET_USER_STATS);
-  const { data: dashboardData, loading: dashboardLoading } =
-    useQuery(GET_USER_DASHBOARD);
+  const { data: statsData, loading: statsLoading } = useQuery(GET_USER_STATS, {
+    fetchPolicy: "network-only",
+  });
+  const { data: recommendationsData, loading: recommendationsLoading, refetch: refetchRecommendations } =
+    useQuery(GET_SAVED_AI_RECOMMENDATIONS, {
+      fetchPolicy: "network-only",
+      pollInterval: 5000,
+    });
 
   const user = meData?.me ?? localUser;
   const stats = statsData?.getUserStats;
-  const recommendations: Recommendation[] =
-    dashboardData?.getUserDashboard ?? [];
+  const savedRecommendations: AIRecommendation[] =
+    recommendationsData?.getSavedAIRecommendations ?? [];
 
-  // Derive a friendly first name
   const firstName = user?.name?.split(" ")[0] ?? "there";
+
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchRecommendations();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [refetchRecommendations]);
 
   return (
     <DashboardLayout>
@@ -184,10 +199,10 @@ export default function UserDashboard() {
         {/* Top Recommendations */}
         <Card className="bg-slate-900 border-white/10">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Your Career Matches</CardTitle>
-            {recommendations.length > 0 && (
+            <CardTitle>Your Saved Career Recommendations</CardTitle>
+            {savedRecommendations.length > 0 && (
               <Link
-                href="/recommendations"
+                href="/saved-recommendations"
                 className="text-xs text-blue-400 hover:underline flex items-center gap-1"
               >
                 View all <ArrowRight size={12} />
@@ -195,55 +210,111 @@ export default function UserDashboard() {
             )}
           </CardHeader>
           <CardContent>
-            {dashboardLoading ? (
+            {recommendationsLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <SkeletonBox key={i} className="h-16" />
                 ))}
               </div>
-            ) : recommendations.length > 0 ? (
-              <div className="space-y-3">
-                {recommendations.slice(0, 5).map((rec: Recommendation) => (
-                  <div
-                    key={rec.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-colors group"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-slate-100 truncate">
-                        {rec.career.title}
-                      </h4>
-                      <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
-                        <span className="flex items-center gap-1">
-                          <Star size={10} className="text-yellow-400" />
-                          {rec.score}% match
-                        </span>
-                        {rec.career.salary_range && (
-                          <span className="text-green-400">
-                            {rec.career.salary_range}
-                          </span>
-                        )}
-                      </div>
+            ) : savedRecommendations.length > 0 ? (
+              <div className="space-y-2">
+                {savedRecommendations.slice(0, 5).map((rec: AIRecommendation) => {
+                  const isExpanded = expandedId === rec.id;
+                  return (
+                    <div key={rec.id} className="border border-white/5 rounded-xl overflow-hidden">
+                      <button
+                        onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                        className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors text-left group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-slate-100 truncate">
+                            {rec.title}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                            {rec.salaryRange && (
+                              <span className="text-green-400">
+                                {rec.salaryRange}
+                              </span>
+                            )}
+                            <span className="text-slate-500">
+                              {new Date(rec.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <ChevronDown
+                          size={16}
+                          className={`shrink-0 ml-3 text-slate-400 transition-transform ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {/* Expanded Details */}
+                      {isExpanded && (
+                        <div className="px-4 py-3 bg-slate-950 border-t border-white/5 space-y-3 text-sm">
+                          {rec.explanation && (
+                            <div>
+                              <p className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-2">
+                                <Briefcase size={12} className="text-blue-400" />
+                                Why This Career
+                              </p>
+                              <p className="text-slate-400 text-xs leading-relaxed">
+                                {rec.explanation}
+                              </p>
+                            </div>
+                          )}
+
+                          {rec.requiredSkills && rec.requiredSkills.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-2">
+                                <Award size={12} className="text-purple-400" />
+                                Required Skills
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {rec.requiredSkills.map((skill, idx) => (
+                                  <span key={idx} className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {rec.roadmap && rec.roadmap.length > 0 && (
+                            <div>
+                              <p className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-2">
+                                <TrendingUpIcon size={12} className="text-green-400" />
+                                Learning Roadmap
+                              </p>
+                              <ol className="text-slate-400 text-xs space-y-1 list-decimal list-inside">
+                                {rec.roadmap.map((step, idx) => (
+                                  <li key={idx}>{step}</li>
+                                ))}
+                              </ol>
+                            </div>
+                          )}
+
+                          <Link href="/saved-recommendations" className="block">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-blue-500/40 text-blue-400 hover:bg-blue-500/10 text-xs mt-2"
+                            >
+                              View All Saved Recommendations
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="shrink-0 ml-3 opacity-70 group-hover:opacity-100 transition-opacity"
-                    >
-                      <Link href={`/recommendations`}>
-                        <ArrowRight size={16} />
-                      </Link>
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-10 flex flex-col items-center gap-3">
                 <AlertCircle className="text-slate-600" size={40} />
-                <p className="text-slate-500">No career matches yet.</p>
+                <p className="text-slate-500">No saved recommendations yet.</p>
                 <p className="text-xs text-slate-600 mb-2">
-                  Complete the assessment to get personalized career
-                  recommendations.
+                  Complete the assessment and generate recommendations to save them.
                 </p>
                 <Button asChild className="bg-blue-600 hover:bg-blue-700">
                   <Link href="/assessment">Start Assessment</Link>
@@ -304,8 +375,8 @@ export default function UserDashboard() {
                   AI Recommendations
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {recommendations.length > 0
-                    ? `${recommendations.length} career${recommendations.length > 1 ? "s" : ""} tailored for you`
+                  {savedRecommendations.length > 0
+                    ? `${savedRecommendations.length} career${savedRecommendations.length > 1 ? "s" : ""} tailored for you`
                     : "Get AI-powered career suggestions"}
                 </p>
               </div>
@@ -315,7 +386,7 @@ export default function UserDashboard() {
                 asChild
                 className="shrink-0 border-white/10 hover:bg-slate-800"
               >
-                <Link href="/recommendations">View</Link>
+                <Link href="/saved-recommendations">View</Link>
               </Button>
             </div>
 
