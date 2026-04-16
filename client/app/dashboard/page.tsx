@@ -86,9 +86,9 @@ export default function UserDashboard() {
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-6 md:mb-8 flex flex-col md:flex-row items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2">
             Welcome back,{" "}
             <span className="text-blue-400">
               {meLoading ? (
@@ -99,14 +99,14 @@ export default function UserDashboard() {
             </span>
             ! 👋
           </h1>
-          <p className="text-slate-400">
+          <p className="text-xs md:text-sm text-slate-400">
             Here&apos;s your career progress and AI insights.
           </p>
         </div>
 
         {/* Member since badge */}
         {stats && (
-          <div className="hidden md:flex items-center gap-2 text-sm text-slate-400 bg-slate-800/60 px-4 py-2 rounded-xl border border-white/5">
+          <div className="hidden md:flex items-center gap-2 text-xs md:text-sm text-slate-400 bg-slate-800/60 px-3 md:px-4 py-2 rounded-lg md:rounded-xl border border-white/5 whitespace-nowrap">
             <Calendar size={14} className="text-blue-400" />
             Member since{" "}
             <span className="text-slate-200 font-medium">
@@ -117,7 +117,7 @@ export default function UserDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-6 md:mb-8">
         {/* Total Assessments */}
         <Card className="bg-slate-900 border-white/10 hover:border-blue-500/30 transition-colors">
           <CardHeader className="flex flex-row items-center justify-between pb-2">

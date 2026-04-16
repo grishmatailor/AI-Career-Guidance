@@ -155,93 +155,137 @@ export default function ManageQuestions() {
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-            <Settings className="text-blue-500" />
+          <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 flex items-center gap-2 md:gap-3">
+            <Settings className="text-blue-500 h-6 w-6 md:h-8 md:w-8" />
             Manage Questions
           </h1>
-          <p className="text-slate-400">
+          <p className="text-xs md:text-sm text-slate-400">
             Add, edit, or delete assessment questions.{" "}
             <span className="text-blue-400 font-medium">
               {questions.length} total
             </span>
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" onClick={openAdd}>
-          <Plus size={18} className="mr-2" /> Add Question
+        <Button className="bg-blue-600 hover:bg-blue-700 text-xs md:text-sm w-full md:w-auto" onClick={openAdd}>
+          <Plus size={16} className="mr-2" /> Add Question
         </Button>
       </div>
 
       {/* Table */}
       <Card className="bg-slate-900 border-white/10">
         {questions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Settings className="text-slate-600 w-12 h-12 mb-4" />
-            <p className="text-slate-500 mb-4">
+          <div className="flex flex-col items-center justify-center py-16 md:py-20 text-center px-4">
+            <Settings className="text-slate-600 w-10 h-10 md:w-12 md:h-12 mb-4" />
+            <p className="text-slate-500 mb-4 text-sm">
               No questions yet. Add your first one!
             </p>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={openAdd}>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-xs md:text-sm" onClick={openAdd}>
               <Plus size={16} className="mr-2" /> Add Question
             </Button>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/5">
-                <TableHead className="text-slate-400 w-8">#</TableHead>
-                <TableHead className="text-slate-400">Question</TableHead>
-                <TableHead className="text-slate-400">Category</TableHead>
-                <TableHead className="text-slate-400 text-right">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {questions.map((q, i) => (
-                <TableRow
-                  key={q.id}
-                  className="border-white/5 hover:bg-white/5 transition-colors"
-                >
-                  <TableCell className="text-slate-600 font-mono text-sm">
-                    {i + 1}
-                  </TableCell>
-                  <TableCell className="text-white max-w-[420px]">
-                    {q.question}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${
-                        categoryColor[q.category] ?? categoryColor.other
-                      }`}
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-white/5">
+                    <TableHead className="text-slate-400 text-xs md:text-sm w-8">#</TableHead>
+                    <TableHead className="text-slate-400 text-xs md:text-sm">Question</TableHead>
+                    <TableHead className="text-slate-400 text-xs md:text-sm">Category</TableHead>
+                    <TableHead className="text-slate-400 text-xs md:text-sm text-right">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {questions.map((q, i) => (
+                    <TableRow
+                      key={q.id}
+                      className="border-white/5 hover:bg-white/5 transition-colors"
                     >
-                      {q.category}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-white hover:bg-blue-500/10"
-                        onClick={() => openEdit(q)}
+                      <TableCell className="text-slate-600 font-mono text-xs md:text-sm">
+                        {i + 1}
+                      </TableCell>
+                      <TableCell className="text-white text-xs md:text-sm max-w-[420px]">
+                        {q.question}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize ${
+                            categoryColor[q.category] ?? categoryColor.other
+                          }`}
+                        >
+                          {q.category}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-white hover:bg-blue-500/10"
+                            onClick={() => openEdit(q)}
+                          >
+                            <Pencil size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                            onClick={() => setDeleteConfirm(q)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3 p-4">
+              {questions.map((q, i) => (
+                <div key={q.id} className="bg-slate-800/50 border border-white/5 rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <h3 className="font-medium text-white text-sm">{q.question}</h3>
+                      <span
+                        className={`inline-block text-xs font-semibold px-2 py-1 rounded border capitalize mt-2 ${
+                          categoryColor[q.category] ?? categoryColor.other
+                        }`}
                       >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-                        onClick={() => setDeleteConfirm(q)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                        {q.category}
+                      </span>
                     </div>
-                  </TableCell>
-                </TableRow>
+                    <span className="text-slate-500 text-xs font-mono">#{i + 1}</span>
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2 border-t border-white/5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-slate-400 hover:text-white hover:bg-blue-500/10 text-xs"
+                      onClick={() => openEdit(q)}
+                    >
+                      <Pencil size={14} className="mr-1" /> Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-slate-400 hover:text-red-400 hover:bg-red-500/10 text-xs"
+                      onClick={() => setDeleteConfirm(q)}
+                    >
+                      <Trash2 size={14} className="mr-1" /> Delete
+                    </Button>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         )}
       </Card>
 

@@ -24,6 +24,11 @@ export const questionResolvers = {
     },
     deleteQuestion: async (_: any, { id }: any, { user }: any) => {
       if (!user || user.role !== "admin") throw new Error("Unauthorized");
+      
+      // First delete all answers associated with this question
+      await AppDataSource.getRepository(Answer).delete({ question: { id } });
+      
+      // Then delete the question
       await AppDataSource.getRepository(Question).delete(id);
       return true;
     },

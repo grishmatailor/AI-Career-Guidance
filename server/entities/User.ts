@@ -24,6 +24,9 @@ export class User {
   @Column({ default: 0 })
   assessmentCount!: number;
 
+  @Column({ default: true })
+  isActive!: boolean;
+
   @CreateDateColumn()
   created_at!: Date;
 

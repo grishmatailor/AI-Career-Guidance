@@ -10,7 +10,9 @@ export const userResolvers = {
   Query: {
     me: async (_: unknown, __: unknown, { user }: { user: AuthUser | null }) => {
       if (!user) return null;
-      return await AppDataSource.getRepository(User).findOneBy({ id: user.id });
+      const dbUser = await AppDataSource.getRepository(User).findOneBy({ id: user.id });
+      if (!dbUser?.isActive) throw new Error("ACCOUNT_INACTIVE");
+      return dbUser;
     },
     getAllUsers: async (_: unknown, __: unknown, { user }: { user: AuthUser | null }) => {
       if (!user || user.role !== "admin") throw new Error("Unauthorized");
@@ -44,6 +46,8 @@ export const userResolvers = {
       const user = await userRepository.findOneBy({ email });
       if (!user) throw new Error("Invalid credentials");
 
+      if (!user.isActive) throw new Error("User account is inactive request Admin to activate it.");
+
       const isValid = await bcrypt.compare(password, user.password);
       if (!isValid) throw new Error("Invalid credentials");
 
@@ -67,6 +71,12 @@ export const userResolvers = {
       };
       const reply = await getAIResponse(message, userData);
       return reply ?? "I'm unable to respond right now. Please try again.";
+    },
+    updateUserStatus: async (_: any, { id, isActive }: any, { user }: any) => {
+      if (!user || user.role !== "admin") throw new Error("Unauthorized");
+      const userRepository = AppDataSource.getRepository(User);
+      await userRepository.update({ id }, { isActive });
+      return await userRepository.findOneBy({ id });
     },
   },
 };

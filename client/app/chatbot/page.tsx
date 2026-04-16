@@ -63,43 +63,43 @@ export default function ChatbotPage() {
 
   return (
     <DashboardLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-          <Bot className="text-blue-500" />
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 flex items-center gap-2 md:gap-3">
+          <Bot className="text-blue-500 h-6 w-6 md:h-8 md:w-8" />
           AI Career Assistant
         </h1>
-        <p className="text-slate-400">
+        <p className="text-xs md:text-sm text-slate-400">
           Powered by{" "}
           <span className="text-blue-400 font-medium">Groq</span> —
           Ask anything about careers, skills, or industry trends.
         </p>
       </div>
 
-      <Card className="bg-slate-900 border-white/10 flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
-        <ScrollArea className="flex-1 p-6">
-          <div className="space-y-6 pb-2">
+      <Card className="bg-slate-900 border-white/10 flex flex-col h-[calc(100vh-240px)] md:h-[calc(100vh-220px)] min-h-[400px] md:min-h-[500px]">
+        <ScrollArea className="flex-1 p-3 md:p-6">
+          <div className="space-y-4 md:space-y-6 pb-2">
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}
+                className={`flex gap-2 md:gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}
               >
                 {/* Avatar */}
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === "assistant"
+                  className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center shrink-0 ${m.role === "assistant"
                     ? "bg-blue-600 text-white"
                     : "bg-slate-700 text-slate-300"
                     }`}
                 >
                   {m.role === "assistant" ? (
-                    <Bot size={16} />
+                    <Bot size={14} className="md:w-4 md:h-4" />
                   ) : (
-                    <User size={16} />
+                    <User size={14} className="md:w-4 md:h-4" />
                   )}
                 </div>
 
                 {/* Bubble */}
                 <div
-                  className={`px-4 py-3 rounded-2xl max-w-[78%] text-sm leading-relaxed whitespace-pre-wrap ${m.role === "assistant"
+                  className={`px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-2xl max-w-[80%] text-xs md:text-sm leading-relaxed whitespace-pre-wrap ${m.role === "assistant"
                     ? "bg-white/5 text-slate-200 border border-white/5 rounded-tl-none"
                     : "bg-blue-600 text-white rounded-tr-none"
                     }`}
@@ -111,11 +111,11 @@ export default function ChatbotPage() {
 
             {/* Typing indicator */}
             {loading && (
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center animate-pulse shrink-0">
-                  <Bot size={16} />
+              <div className="flex gap-2 md:gap-3">
+                <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-600 flex items-center justify-center animate-pulse shrink-0">
+                  <Bot size={14} className="md:w-4 md:h-4" />
                 </div>
-                <div className="px-4 py-3 rounded-2xl bg-white/5 border border-white/5 rounded-tl-none flex items-center gap-1.5">
+                <div className="px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-2xl bg-white/5 border border-white/5 rounded-tl-none flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
                   <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />

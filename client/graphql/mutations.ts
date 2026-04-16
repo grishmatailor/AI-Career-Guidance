@@ -79,3 +79,15 @@ export const CHAT_CAREER = gql`
     chatCareer(message: $message)
   }
 `;
+
+export const UPDATE_USER_STATUS = gql`
+  mutation UpdateUserStatus($id: ID!, $isActive: Boolean!) {
+    updateUserStatus(id: $id, isActive: $isActive) {
+      id
+      name
+      email
+      role
+      isActive
+    }
+  }
+`;

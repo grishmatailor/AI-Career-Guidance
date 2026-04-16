@@ -145,14 +145,14 @@ function RecommendationsContent() {
 
   return (
     <DashboardLayout>
-      <div className="mb-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <Sparkles className="text-blue-500" />
+      <div className="mb-8 md:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 flex items-center gap-2 md:gap-3">
+              <Sparkles className="text-blue-500 h-6 w-6 md:h-8 md:w-8" />
               AI Career Matches
             </h1>
-            <p className="text-slate-400">
+            <p className="text-xs md:text-sm text-slate-400">
               {recommendations.length > 0
                 ? <>AI has analyzed your profile. Click{" "}<span className="text-blue-400 font-semibold">Save</span> on any career to add it to your saved collection.</>
                 : hasCompletedAssessment

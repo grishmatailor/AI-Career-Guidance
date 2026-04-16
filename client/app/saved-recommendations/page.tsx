@@ -77,14 +77,14 @@ export default function SavedRecommendationsPage() {
   return (
     <DashboardLayout>
       {/* Header */}
-      <div className="mb-10">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <BookmarkCheck className="text-purple-400" />
+      <div className="mb-8 md:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 md:gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 flex items-center gap-2 md:gap-3">
+              <BookmarkCheck className="text-purple-400 h-6 w-6 md:h-8 md:w-8" />
               Saved Recommendations
             </h1>
-            <p className="text-slate-400">
+            <p className="text-xs md:text-sm text-slate-400">
               Career paths you&apos;ve saved from your AI matches.
             </p>
           </div>
@@ -92,10 +92,10 @@ export default function SavedRecommendationsPage() {
           <Link href="/recommendations">
             <Button
               variant="outline"
-              className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 flex items-center gap-2"
+              className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 flex items-center gap-2 text-xs md:text-sm"
             >
               <Sparkles size={16} />
-              Get AI Recommendations
+              Get Recommendations
             </Button>
           </Link>
         </div>

@@ -5,6 +5,7 @@ export const typeDefs = `#graphql
     email: String!
     role: String!
     education: String
+    isActive: Boolean!
     created_at: String!
   }
 
@@ -90,5 +91,8 @@ export const typeDefs = `#graphql
     
     # Chatbot
     chatCareer(message: String!): String!
+    
+    # User Management
+    updateUserStatus(id: ID!, isActive: Boolean!): User!
   }
 `;
